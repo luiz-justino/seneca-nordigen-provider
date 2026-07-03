@@ -1,4 +1,5 @@
-/* Copyright © 2022 Seneca Project Contributors, MIT License. */
+/* Copyright © 2022-2023 Seneca Project Contributors, MIT License. */
+
 
 const Pkg = require('../package.json')
 const { NordigenLoader } = require('../nordigen-loader.js')
@@ -56,14 +57,35 @@ function NordigenProvider(this: any, options: NordigenProviderOptions) {
                 return list
               }
             }
+          },
+
+          /*
+
+          load: {
+            action: async function(this: any, entize: any, msg: any) {
+              let q = { id: ... }
+
+              let res = await this.shared.sdk.institution.getInstitution(q)
+
+              if (res.status_code) {
+                seneca.fail('nordigen-api-fail', { section: 'institution', q })
+              }
+
+              return entize(res)
+            }
           }
+          */
+
         }
       }
     }
   })
 
 
-  seneca.prepare(async function(this: any) {
+  seneca.prepare(prepare)
+
+
+  async function prepare(this: any) {
     const NordigenModule: any = await NordigenLoader
     const Nordigen = NordigenModule.default
 
@@ -78,10 +100,9 @@ function NordigenProvider(this: any, options: NordigenProviderOptions) {
       secretKey: secretKey.value
     }
 
-
     this.shared.sdk = new Nordigen(config)
     await this.shared.sdk.generateToken()
-  })
+  }
 
 
   return {
